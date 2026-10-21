@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=141">
+<link rel="stylesheet" href="style.css?v=143">
 <script>
   // Scroll motion is opt-out: only visitors who haven't asked for reduced motion
   // get the hidden-until-revealed states, and if motion.js never loads the
@@ -49,6 +49,47 @@
      queues WhatsApp, email, CV and booking clicks until a tracker loads. -->
 </head>
 <body>
+
+<!-- ============ INTRO ============
+     A short opening screen: portrait, name, a loading bar. It lifts once the
+     page has loaded and the line has filled (2.1s to 4s), shows once per visit, and is
+     skipped for visitors who asked for reduced motion. motion.js holds the
+     hero's entrance until it has gone. -->
+<div class="intro" id="intro" aria-hidden="true">
+  <img class="intro-photo" src="assets/img/mahmoud-hero@2x.webp" alt="" width="1536" height="1024" fetchpriority="high">
+  <div class="intro-inner">
+    <p class="intro-name">Mahmoud Gad.</p>
+    <p class="intro-role">Senior Performance Media Buyer</p>
+    <span class="intro-bar"><i></i></span>
+  </div>
+</div>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var intro = document.getElementById('intro');
+    var seen = false;
+    try { seen = sessionStorage.getItem('introSeen') === '1'; } catch (e) {}
+    var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (seen || still) { intro.remove(); return; }
+    try { sessionStorage.setItem('introSeen', '1'); } catch (e) {}
+    root.classList.add('intro-on');
+    var start = Date.now(), done = false;
+    function lift() {
+      if (done) return;
+      done = true;
+      intro.classList.add('is-out');
+      setTimeout(function () {
+        intro.remove();
+        root.classList.remove('intro-on');
+        document.dispatchEvent(new CustomEvent('intro:done'));
+      }, 750);
+    }
+    window.addEventListener('load', function () {
+      setTimeout(lift, Math.max(0, 2100 - (Date.now() - start)));
+    });
+    setTimeout(lift, 4000);                 // a slow image never holds the page
+  })();
+</script>
 
 <!-- Fixed aurora field. Sits behind every section for the whole scroll,
      costs nothing on scroll because it never moves with the page. -->
@@ -414,13 +455,13 @@
   </div>
 </div>
 
-<script src="i18n.js?v=141"></script>
-<script src="data-config.js?v=141"></script>
-<script src="script.js?v=141"></script>
-<script src="motion.js?v=141"></script>
-<script src="swipe.js?v=141"></script>
-<script src="globe.js?v=141"></script>
-<script src="net.js?v=141"></script>
-<script src="book.js?v=141"></script>
+<script src="i18n.js?v=143"></script>
+<script src="data-config.js?v=143"></script>
+<script src="script.js?v=143"></script>
+<script src="motion.js?v=143"></script>
+<script src="swipe.js?v=143"></script>
+<script src="globe.js?v=143"></script>
+<script src="net.js?v=143"></script>
+<script src="book.js?v=143"></script>
 </body>
 </html>

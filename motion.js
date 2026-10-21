@@ -150,7 +150,11 @@
     });
     $$(REVEAL).forEach((el) => { if (!el.classList.contains('m-in')) io.observe(el); });
   }
-  document.addEventListener('site:rendered', refresh);
+  // the opening screen (index.html) holds the hero's entrance until it lifts
+  document.addEventListener('site:rendered', () => {
+    if (root.classList.contains('intro-on')) document.addEventListener('intro:done', refresh, { once: true });
+    else refresh();
+  });
 
   // headings whose words already played get re-split with the new language;
   // play those right away rather than leaving them hidden until re-observed
