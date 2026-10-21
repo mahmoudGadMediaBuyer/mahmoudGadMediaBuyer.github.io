@@ -150,11 +150,7 @@
     });
     $$(REVEAL).forEach((el) => { if (!el.classList.contains('m-in')) io.observe(el); });
   }
-  // the opening screen (index.html) holds the hero's entrance until it lifts
-  document.addEventListener('site:rendered', () => {
-    if (root.classList.contains('intro-on')) document.addEventListener('intro:done', refresh, { once: true });
-    else refresh();
-  });
+  document.addEventListener('site:rendered', refresh);
 
   // headings whose words already played get re-split with the new language;
   // play those right away rather than leaving them hidden until re-observed
@@ -202,4 +198,34 @@
   window.addEventListener('resize', () => { onScroll(); paintAccent(document); });
   document.fonts?.ready.then(() => paintAccent(document));
   onScroll();
+
+  // ---------- the portrait turns toward the pointer (or a finger) ----------
+  // It eases toward a target set by the pointer, so it moves like an object
+  // with weight rather than snapping. The loop runs only while it is moving.
+  const portrait = document.querySelector('.hero-portrait picture');
+  if (hero && portrait) {
+    const MAX_Y = 11, MAX_X = 8;                       // degrees left/right, up/down
+    let tx = 0, ty = 0, cx = 0, cy = 0, spinning = false;
+    const aim = (clientX, clientY) => {
+      if (!enabled()) return;
+      const r = hero.getBoundingClientRect();
+      tx = Math.max(-1, Math.min(1, ((clientX - r.left) / r.width - 0.5) * 2));
+      ty = Math.max(-1, Math.min(1, ((clientY - r.top) / Math.min(r.height, window.innerHeight) - 0.45) * 2));
+      if (!spinning) { spinning = true; requestAnimationFrame(step); }
+    };
+    const rest = () => { tx = ty = 0; if (!spinning) { spinning = true; requestAnimationFrame(step); } };
+    const step = () => {
+      cx += (tx - cx) * 0.08; cy += (ty - cy) * 0.08;
+      portrait.style.setProperty('--ry', `${(cx * MAX_Y).toFixed(2)}deg`);
+      portrait.style.setProperty('--rx', `${(-cy * MAX_X).toFixed(2)}deg`);
+      portrait.style.setProperty('--px', `${(cx * 14).toFixed(1)}px`);
+      portrait.style.setProperty('--py', `${(cy * 8).toFixed(1)}px`);
+      if (Math.abs(tx - cx) + Math.abs(ty - cy) > 0.002) requestAnimationFrame(step);
+      else spinning = false;
+    };
+    hero.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') aim(e.clientX, e.clientY); }, { passive: true });
+    hero.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') rest(); });
+    hero.addEventListener('touchmove', (e) => aim(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+    hero.addEventListener('touchend', rest, { passive: true });
+  }
 })();

@@ -92,15 +92,24 @@
   };
   const ease = (q) => (q < 0.5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2);
 
+  // Sizes are measured once and again only on resize: reading them every
+  // frame forced a layout pass per frame, which phones felt as stutter.
+  let size = 0, tile = 0;
+  const measure = () => { size = stage.clientWidth; tile = tiles[0].offsetWidth; };
+  // what each tile last got, so a frame only touches what actually changed
+  const lastT = new Array(N).fill(''), lastO = new Array(N).fill(''), lastZ = new Array(N).fill(-1);
+  const lastBack = new Array(N).fill(null);
+  let lastOpen = '', shownFront = -2;
+
   const draw = () => {
-    const size = stage.clientWidth;
-    const tile = tiles[0].offsetWidth;
+    if (!size) measure();
     const R = size / 2 - tile * 0.52;
     const cell = size / COLS;
     const gs = (cell * 0.86) / tile;               // a tile's scale once it is in the grid
     const top = (size - ROWS * cell) / 2;
     const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
-    stage.style.setProperty('--open', m.toFixed(3));
+    const mo = m.toFixed(3);
+    if (mo !== lastOpen) { stage.style.setProperty('--open', mo); lastOpen = mo; }
     let best = -2, bestI = -1;
     for (let i = 0; i < N; i++) {
       const p = pts[i];
@@ -125,16 +134,26 @@
       // each tile leaves a touch after the one before it
       const q = ease(Math.max(0, Math.min(1, m * 1.5 - (i / N) * 0.5)));
       const el = tiles[i];
-      el.style.transform = `translate3d(${(sx + (gx - sx) * q).toFixed(1)}px,${(syy + (gy - syy) * q).toFixed(1)}px,0) scale(${(ss + (gs - ss) * q).toFixed(3)})`;
-      el.style.opacity = (so + (1 - so) * q).toFixed(3);
-      el.style.zIndex = q > 0.5 ? (i === picked ? 200 : 100) : Math.round(d * 100) + (k ? 20 : 0);
-      el.classList.toggle('is-back', !open && z < -0.05);
+      const tf = `translate3d(${(sx + (gx - sx) * q).toFixed(1)}px,${(syy + (gy - syy) * q).toFixed(1)}px,0) scale(${(ss + (gs - ss) * q).toFixed(3)})`;
+      if (tf !== lastT[i]) { el.style.transform = tf; lastT[i] = tf; }
+      const op = (so + (1 - so) * q).toFixed(2);
+      if (op !== lastO[i]) { el.style.opacity = op; lastO[i] = op; }
+      // stacking order in coarse steps: re-sorting layers every frame is costly
+      const zi = q > 0.5 ? (i === picked ? 200 : 100) : Math.round(d * 20) * 5 + (k ? 20 : 0);
+      if (zi !== lastZ[i]) { el.style.zIndex = zi; lastZ[i] = zi; }
+      const back = !open && z < -0.05;
+      if (back !== lastBack[i]) { el.classList.toggle('is-back', back); lastBack[i] = back; }
     }
     if (!open && bestI !== front) {
       front = bestI;
       if (front >= 0) say(clients[front].name, isKey(clients[front]));
     }
-    tiles.forEach((t, i) => t.classList.toggle('is-front', open ? i === picked : i === front));
+    const lit = open ? picked : front;
+    if (lit !== shownFront) {
+      if (shownFront >= 0) tiles[shownFront].classList.remove('is-front');
+      if (lit >= 0) tiles[lit].classList.add('is-front');
+      shownFront = lit;
+    }
   };
 
   let last = 0;
@@ -163,7 +182,8 @@
       visible ? start() : stop();
     }, { threshold: 0.05 }).observe(stage);
   } else { visible = true; start(); }
-  window.addEventListener('resize', draw);
+  window.addEventListener('resize', () => { measure(); draw(); });
+  document.fonts && document.fonts.ready.then(() => { measure(); draw(); });
 
   const setOpen = (v) => {
     open = v; picked = -1; front = -1;

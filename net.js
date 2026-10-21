@@ -33,7 +33,9 @@
   const pointer = { x: -9999, y: -9999 };
 
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // phones draw it at 1x: thin lines lose almost nothing, and the canvas
+    // has a quarter of the pixels to fill every frame
+    const dpr = window.innerWidth < 760 ? 1 : Math.min(window.devicePixelRatio || 1, 2);
     const widthChanged = window.innerWidth !== w;
     w = window.innerWidth;
     h = window.innerHeight;
