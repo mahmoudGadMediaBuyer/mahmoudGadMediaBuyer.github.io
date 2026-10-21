@@ -277,98 +277,131 @@ main,
 }
 
 /* ---------- intro (opening screen) ---------- */
-/* The portrait fills the screen behind a dark wash; name, title and a thin
-   loading line sit over it. The whole screen slides up when the page is ready. */
+/* The photo covers the screen the way object-fit: cover would, but as a box
+   (.intro-stage) so the text can sit on the TV in it: the TV's place is given
+   in % of the photo. Wide screens get the 16:9 photo, tall ones the 9:16. */
 .intro{
   position: fixed;
   inset: 0;
   z-index: 1000;
   overflow: hidden;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  background:
-    radial-gradient(60% 50% at 18% 18%, rgba(34,197,255,0.16), transparent 70%),
-    radial-gradient(55% 50% at 85% 20%, rgba(168,85,247,0.22), transparent 70%),
-    #0a0a0f;
-  color: #f5f5f7;
+  background: #0a0a0f;
+  container-type: size;
   transition: transform 1.1s cubic-bezier(.7,0,.3,1);
 }
 .intro.is-out{ transform: translate3d(0, -100%, 0); }
 html.intro-on, html.intro-on body{ overflow: hidden; }
 .intro-on .hero-portrait img{ animation-play-state: paused; }
-.intro-photo{
+.intro-stage{
+  --r: 16 / 9; --rw: 16; --rh: 9;          /* the photo's shape */
+  --fx: .5; --fy: .35;                     /* which part stays in view when cropped */
+  --sx: 43.2%; --sy: 13.9%; --sw: 46.2%; --sh: 45.4%;   /* the TV screen, in the photo */
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 18%;
+  width: max(100cqw, calc(100cqh * var(--rw) / var(--rh)));
+  aspect-ratio: var(--r);
+  left: calc((100cqw - max(100cqw, calc(100cqh * var(--rw) / var(--rh)))) * var(--fx));
+  top: calc((100cqh - max(100cqh, calc(100cqw * var(--rh) / var(--rw)))) * var(--fy));
+  container-type: inline-size;
   opacity: 0;
-  animation: intro-photo 1.5s ease-out forwards;
+  scale: 1.02;                             /* spare edge for the lean */
+  transition: translate .6s cubic-bezier(.2,.7,.2,1);
+  animation: intro-photo 1.4s ease-out forwards;
 }
-.intro::after{                 /* the wash that keeps the type readable */
-  content: "";
+@media (orientation: portrait){
+  .intro-stage{
+    --r: 9 / 16; --rw: 9; --rh: 16;
+    --fx: .35; --fy: .3;
+    --sx: 46.9%; --sy: 33.2%; --sw: 39.6%; --sh: 13.4%;   /* clear of his face and shoulder */
+  }
+}
+.intro-stage picture, .intro-photo{ display: block; width: 100%; height: 100%; }
+.intro-screen{
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(10,10,15,0.94) 0%, rgba(10,10,15,0.45) 48%, rgba(10,10,15,0.55) 100%);
-}
-.intro-inner{
-  position: relative;
-  z-index: 1;
+  left: var(--sx); top: var(--sy); width: var(--sw); height: var(--sh);
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 0 20px 16vh;
-  transition: opacity .4s ease;
+  transform: rotate(-1.44deg);             /* the TV hangs slightly tilted */
+  transition: opacity .35s ease;
 }
-.intro.is-out .intro-inner{ opacity: 0; }
-.intro-name{
+.intro.is-out .intro-screen{ opacity: 0; }
+/* the name, written out like a signature: the stroke draws, then fills in */
+.intro-sign{
+  display: block;
+  width: 72%;
+  height: auto;
+  overflow: visible;
+  margin-bottom: .2cqw;
+}
+.intro-sign text{
+  font-family: 'Mrs Saint Delafield', 'Snell Roundhand', cursive;
+  font-size: 128px;
+  fill: #16163a;
+  fill-opacity: 0;
+  stroke: #16163a;
+  stroke-width: 1.4;
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+  animation: intro-write 1.5s cubic-bezier(.45,.05,.35,1) .45s forwards,
+             intro-ink .6s ease 1.55s forwards;
+}
+.intro-title{
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(2.2rem, 7vw, 4.6rem);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1;
+  font-size: 2.1cqw;
+  font-weight: 800;
+  letter-spacing: .08em;
+  line-height: 1.15;
   text-transform: uppercase;
-  text-shadow: 0 4px 24px rgba(0,0,0,0.55);
-  animation: intro-rise .8s cubic-bezier(.16,1,.3,1) .2s both;
+  color: #16163a;
+  animation: intro-on .8s cubic-bezier(.16,1,.3,1) 1.35s both;
 }
-.intro-role{
-  margin: 16px 0 0;
-  font-family: var(--font-body);
-  font-size: clamp(0.72rem, 2vw, 1rem);
-  font-weight: 600;
-  letter-spacing: .25em;
-  text-transform: uppercase;
-  color: #c9c3ff;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
-  animation: intro-rise .8s cubic-bezier(.16,1,.3,1) .4s both;
+.intro-load{
+  display: flex;
+  align-items: center;
+  gap: 1cqw;
+  width: 48%;
+  margin-top: 1.7cqw;
+  animation: intro-on .7s cubic-bezier(.16,1,.3,1) 1.55s both;
 }
 .intro-bar{
-  display: block;
-  width: 160px;
-  height: 2px;
-  margin-top: 30px;
-  border-radius: 2px;
-  background: rgba(255,255,255,0.12);
+  flex: 1;
+  height: max(3px, .3cqw);
+  border-radius: 99px;
+  background: rgba(22,22,58,0.12);
   overflow: hidden;
-  animation: intro-rise .8s cubic-bezier(.16,1,.3,1) .6s both;
 }
 .intro-bar i{
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #6d5efc, #b4a9ff);
-  box-shadow: 0 0 10px #6d5efc;
+  background: linear-gradient(90deg, #6d5efc, #8b7bff);
   transform: scaleX(0);
   transform-origin: left;
-  animation: intro-load 1.2s ease-in-out .8s forwards;
 }
-.intro.is-out .intro-bar i{ transform: scaleX(1); animation: none; transition: transform .2s ease; }
-@keyframes intro-photo{ from{ opacity: 0; transform: scale(1.05); } to{ opacity: 1; transform: scale(1); } }
-@keyframes intro-rise{ from{ opacity: 0; transform: translate3d(0, 20px, 0); } }
-@keyframes intro-load{ to{ transform: scaleX(1); } }
+.intro-pct{
+  min-width: 3.2em;
+  font-family: var(--font-body);
+  font-size: .95cqw;
+  font-weight: 700;
+  color: #6d5efc;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+@media (orientation: portrait){
+  .intro-sign{ width: 96%; }
+  .intro-title{ font-size: 3.9cqw; letter-spacing: .05em; }
+  .intro-title span{ display: block; }
+  .intro-load{ width: 78%; gap: 2cqw; margin-top: 2.8cqw; }
+  .intro-bar{ height: max(3px, .7cqw); }
+  .intro-pct{ font-size: 2.4cqw; }
+}
+@keyframes intro-write{ to{ stroke-dashoffset: 0; } }
+@keyframes intro-ink{ to{ fill-opacity: 1; stroke-opacity: 0; } }
+/* the text comes up on the TV like a picture on a screen */
+@keyframes intro-on{ from{ opacity: 0; filter: blur(6px); transform: scale(.96); } }
+@keyframes intro-photo{ from{ opacity: 0; transform: scale(1.04); } to{ opacity: 1; transform: none; } }
 
 /* ---------- hero portrait (behind the headline) ---------- */
 .hero-portrait{

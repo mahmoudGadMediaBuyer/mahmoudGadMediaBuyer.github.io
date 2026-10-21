@@ -8,7 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=143">
+<link href="https://fonts.googleapis.com/css2?family=Mrs+Saint+Delafield&text=MahmoudGd%20&display=block" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=147">
 <script>
   // Scroll motion is opt-out: only visitors who haven't asked for reduced motion
   // get the hidden-until-revealed states, and if motion.js never loads the
@@ -51,16 +52,27 @@
 <body>
 
 <!-- ============ INTRO ============
-     A short opening screen: portrait, name, a loading bar. It lifts once the
-     page has loaded and the line has filled (2.1s to 4s), shows once per visit, and is
-     skipped for visitors who asked for reduced motion. motion.js holds the
-     hero's entrance until it has gone. -->
+     A short opening screen: Mahmoud's photo, and on the TV behind him his
+     name written out as a signature, his title, and a loading line with a
+     percentage that follows the page's real loading. The photo leans a little
+     with the pointer. It lifts once the page has loaded and the line is full
+     (about 3s, at most 6s), shows once per visit, and is skipped for visitors
+     who asked for reduced motion. motion.js holds the hero until it has gone. -->
 <div class="intro" id="intro" aria-hidden="true">
-  <img class="intro-photo" src="assets/img/mahmoud-hero@2x.webp" alt="" width="1536" height="1024" fetchpriority="high">
-  <div class="intro-inner">
-    <p class="intro-name">Mahmoud Gad.</p>
-    <p class="intro-role">Senior Performance Media Buyer</p>
-    <span class="intro-bar"><i></i></span>
+  <div class="intro-stage">
+    <picture>
+      <source media="(orientation: portrait)" srcset="assets/img/intro-mobile.webp">
+      <img class="intro-photo" src="assets/img/intro-desktop.webp" alt="" width="1920" height="1080" fetchpriority="high">
+    </picture>
+    <!-- sits on the TV in the photo; its box is set per photo in style.css -->
+    <div class="intro-screen">
+      <svg class="intro-sign" viewBox="0 0 640 160"><text x="320" y="112" text-anchor="middle">Mahmoud Gad</text></svg>
+      <p class="intro-title"><span>Performance</span> <span>Media Buyer</span></p>
+      <div class="intro-load">
+        <span class="intro-bar"><i id="introBar"></i></span>
+        <span class="intro-pct" id="introPct">0%</span>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -73,21 +85,54 @@
     if (seen || still) { intro.remove(); return; }
     try { sessionStorage.setItem('introSeen', '1'); } catch (e) {}
     root.classList.add('intro-on');
-    var start = Date.now(), done = false;
+
+    var stage = intro.querySelector('.intro-stage');
+    var bar = document.getElementById('introBar');
+    var pct = document.getElementById('introPct');
+    var start = performance.now(), loaded = false, done = false;
+    var BAR_FROM = 1700, BAR_FOR = 1300;    // the line starts once the name is written
+    window.addEventListener('load', function () { loaded = true; });
+
+    // real progress: the page's images that have arrived, then the load event
+    function real() {
+      if (loaded) return 1;
+      var imgs = document.images, n = imgs.length, ok = 0;
+      for (var i = 0; i < n; i++) if (imgs[i].complete) ok++;
+      return n ? Math.min(0.95, ok / n) : 0;
+    }
+    function tick(now) {
+      if (done) return;
+      var t = Math.max(0, Math.min(1, (now - start - BAR_FROM) / BAR_FOR));
+      var p = Math.min(t, real());
+      bar.style.transform = 'scaleX(' + p + ')';
+      pct.textContent = Math.round(p * 100) + '%';
+      if (p >= 1) { setTimeout(lift, 350); return; }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    // the photo leans a little toward the pointer or finger
+    function lean(x, y) {
+      var dx = (x / innerWidth - 0.5) * -14, dy = (y / innerHeight - 0.5) * -10;
+      stage.style.translate = dx.toFixed(1) + 'px ' + dy.toFixed(1) + 'px';
+    }
+    function onMove(e) { var p = e.touches ? e.touches[0] : e; lean(p.clientX, p.clientY); }
+    intro.addEventListener('mousemove', onMove);
+    intro.addEventListener('touchmove', onMove, { passive: true });
+
     function lift() {
       if (done) return;
       done = true;
+      bar.style.transform = 'scaleX(1)';
+      pct.textContent = '100%';
       intro.classList.add('is-out');
       setTimeout(function () {
         intro.remove();
         root.classList.remove('intro-on');
         document.dispatchEvent(new CustomEvent('intro:done'));
-      }, 750);
+      }, 1100);
     }
-    window.addEventListener('load', function () {
-      setTimeout(lift, Math.max(0, 2100 - (Date.now() - start)));
-    });
-    setTimeout(lift, 4000);                 // a slow image never holds the page
+    setTimeout(lift, 6000);                 // a slow connection never holds the page
   })();
 </script>
 
@@ -455,13 +500,13 @@
   </div>
 </div>
 
-<script src="i18n.js?v=143"></script>
-<script src="data-config.js?v=143"></script>
-<script src="script.js?v=143"></script>
-<script src="motion.js?v=143"></script>
-<script src="swipe.js?v=143"></script>
-<script src="globe.js?v=143"></script>
-<script src="net.js?v=143"></script>
-<script src="book.js?v=143"></script>
+<script src="i18n.js?v=147"></script>
+<script src="data-config.js?v=147"></script>
+<script src="script.js?v=147"></script>
+<script src="motion.js?v=147"></script>
+<script src="swipe.js?v=147"></script>
+<script src="globe.js?v=147"></script>
+<script src="net.js?v=147"></script>
+<script src="book.js?v=147"></script>
 </body>
 </html>
