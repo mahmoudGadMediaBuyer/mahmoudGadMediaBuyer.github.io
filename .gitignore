@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# editors
+.vscode/
+.idea/
+*.swp
+
+# logs / temp
+*.log
+.tmp/
+
+# Account-level overview screenshots — not used by the site yet.
+# They aggregate spend across many campaigns, so they stay out of the public
+# repo until you decide to publish them. Delete these lines to include them.
+assets/case-studies/overview-*.jpg
+
+# local design-tool workspaces
+.impeccable/
+.taste-skill/
