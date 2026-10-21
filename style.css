@@ -1318,6 +1318,19 @@ html[dir="rtl"] .split .wi{ transform-origin: right bottom; }
   color: transparent;
 }
 
+/* Arabic gets the accent as a solid colour. Gradient text paints only inside
+   each glyph's box, and Safari on iPhone drops the dots and hamzas that sit
+   outside it (قابلة read as مابله). */
+html[lang="ar"] .hero-title .accent,
+html[lang="ar"] .accent-split .wi,
+html[lang="ar"] .loop-core-word{
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--accent-2);
+  -webkit-text-fill-color: currentColor;
+}
+
 /* ---- reveals ---- */
 .motion .m-in:is(.hero-sub, .hero-ctas, .marquee, .section .eyebrow, .tools-title,
   .case-filters, .insight-more, .insight-list > *){
