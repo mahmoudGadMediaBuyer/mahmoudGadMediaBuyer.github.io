@@ -397,6 +397,14 @@ html.intro-on, html.intro-on body{ overflow: hidden; }
   .intro-bar{ height: max(3px, .7cqw); }
   .intro-pct{ font-size: 2.4cqw; }
 }
+/* reduced motion: everything simply shows, nothing moves */
+@media (prefers-reduced-motion: reduce){
+  .intro-stage, .intro-title, .intro-load{ animation: none; opacity: 1; }
+  .intro-stage{ transition: none; }
+  .intro-sign text{ animation: none; stroke-dashoffset: 0; fill-opacity: 1; stroke-opacity: 0; }
+  .intro{ transition: opacity .4s ease; }
+  .intro.is-out{ transform: none; opacity: 0; }
+}
 @keyframes intro-write{ to{ stroke-dashoffset: 0; } }
 @keyframes intro-ink{ to{ fill-opacity: 1; stroke-opacity: 0; } }
 /* the text comes up on the TV like a picture on a screen */

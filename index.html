@@ -56,8 +56,9 @@
      name written out as a signature, his title, and a loading line with a
      percentage that follows the page's real loading. The photo leans a little
      with the pointer. It lifts once the page has loaded and the line is full
-     (about 3s, at most 6s), shows once per visit, and is skipped for visitors
-     who asked for reduced motion. motion.js holds the hero until it has gone. -->
+     (about 3s, at most 6s) and plays on every load; visitors who asked for
+     reduced motion get it without the movement. motion.js holds the hero
+     until it has gone. -->
 <div class="intro" id="intro" aria-hidden="true">
   <div class="intro-stage">
     <picture>
@@ -79,11 +80,6 @@
   (function () {
     var root = document.documentElement;
     var intro = document.getElementById('intro');
-    var seen = false;
-    try { seen = sessionStorage.getItem('introSeen') === '1'; } catch (e) {}
-    var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (seen || still) { intro.remove(); return; }
-    try { sessionStorage.setItem('introSeen', '1'); } catch (e) {}
     root.classList.add('intro-on');
 
     var stage = intro.querySelector('.intro-stage');
@@ -117,8 +113,10 @@
       stage.style.translate = dx.toFixed(1) + 'px ' + dy.toFixed(1) + 'px';
     }
     function onMove(e) { var p = e.touches ? e.touches[0] : e; lean(p.clientX, p.clientY); }
-    intro.addEventListener('mousemove', onMove);
-    intro.addEventListener('touchmove', onMove, { passive: true });
+    if (!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+      intro.addEventListener('mousemove', onMove);
+      intro.addEventListener('touchmove', onMove, { passive: true });
+    }
 
     function lift() {
       if (done) return;
