@@ -59,6 +59,17 @@
       },
     });
 
+    // the conversion that matters most: a confirmed booking (script.js owns
+    // trackEvent). Cal fires both names on some versions, hence the guard.
+    let booked = false;
+    const onBooked = () => {
+      if (booked || typeof window.trackEvent !== 'function') return;
+      booked = true;
+      window.trackEvent('book_call', { event_type: link });
+    };
+    Cal.ns[NS]('on', { action: 'bookingSuccessfulV2', callback: onBooked });
+    Cal.ns[NS]('on', { action: 'bookingSuccessful', callback: onBooked });
+
     // keep the calendar on the site's theme when the visitor flips it
     new MutationObserver(() => Cal.ns[NS]('ui', { theme: theme() }))
       .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });

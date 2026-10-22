@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=142">
+<link rel="stylesheet" href="style.css?v=143">
 <script>
   // Scroll motion is opt-out: only visitors who haven't asked for reduced motion
   // get the hidden-until-revealed states, and if motion.js never loads the
@@ -45,8 +45,42 @@
 <link rel="canonical" href="https://mahmoudgadmediabuyer.github.io/">
 
 <!-- ============ ANALYTICS ============
-     Paste the GA4 / Meta Pixel snippet here. script.js (trackEvent) already
-     queues WhatsApp, email, CV and booking clicks until a tracker loads. -->
+     Google Analytics 4 (who came and from where) and Microsoft Clarity (what
+     they did on the page). script.js / book.js send the conversions through
+     trackEvent: book_call, whatsapp_click, email_click, cv_download, case_open.
+
+     Your own visits: open the site once on each of your devices with
+     ?internal=1 at the end of the address and that browser stops being
+     counted (?internal=0 undoes it). Local previews are never counted. -->
+<script>
+  (function () {
+    var GA4_ID = 'G-Z638N4K5C4';
+    var CLARITY_ID = 'z1kwybmvf0';
+
+    var flag = new URLSearchParams(location.search).get('internal');
+    try {
+      if (flag === '1') localStorage.setItem('mg_internal', '1');
+      if (flag === '0') localStorage.removeItem('mg_internal');
+      if (localStorage.getItem('mg_internal') === '1') return;
+    } catch (e) {}
+    if (!/github\.io$/.test(location.hostname)) return;
+
+    var ga = document.createElement('script');
+    ga.async = true;
+    ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA4_ID;
+    document.head.appendChild(ga);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag('js', new Date());
+    gtag('config', GA4_ID);
+
+    (function (c, l, a, r, i, t, y) {
+      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+      t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i;
+      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+    })(window, document, 'clarity', 'script', CLARITY_ID);
+  })();
+</script>
 </head>
 <body>
 
@@ -414,13 +448,13 @@
   </div>
 </div>
 
-<script src="i18n.js?v=142"></script>
-<script src="data-config.js?v=142"></script>
-<script src="script.js?v=142"></script>
-<script src="motion.js?v=142"></script>
-<script src="swipe.js?v=142"></script>
-<script src="globe.js?v=142"></script>
-<script src="net.js?v=142"></script>
-<script src="book.js?v=142"></script>
+<script src="i18n.js?v=143"></script>
+<script src="data-config.js?v=143"></script>
+<script src="script.js?v=143"></script>
+<script src="motion.js?v=143"></script>
+<script src="swipe.js?v=143"></script>
+<script src="globe.js?v=143"></script>
+<script src="net.js?v=143"></script>
+<script src="book.js?v=143"></script>
 </body>
 </html>

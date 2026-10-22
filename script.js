@@ -990,6 +990,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .map(p => (typeof p === 'string' ? { src: p } : p))
       .map(p => ({ ...p, src: withV(p.src) }));
     proofTitle = t(item.title);
+    trackEvent('case_open', { client: item.title });
     if (proofList.length > 1) showGrid(); else showViewer(0);
     lightbox.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -1092,15 +1093,15 @@ document.addEventListener('DOMContentLoaded', () => {
   setLang(lang);
 
   // ---------- analytics helper ----------
-  // Events queue until a tracker exists, so nothing is lost between now and
-  // whenever GA4 / Meta Pixel gets installed.
-  window._pendingEvents = window._pendingEvents || [];
+  // GA4 gets the event with its details; Clarity gets the name, so its
+  // recordings can be filtered to "visitors who booked" and the like. Neither
+  // exists on your own devices or local previews (see the head of index.html).
   function trackEvent(name, params) {
     params = params || {};
     if (typeof window.gtag === 'function') window.gtag('event', name, params);
-    else if (typeof window.fbq === 'function') window.fbq('trackCustom', name, params);
-    else window._pendingEvents.push([name, params]);
+    if (typeof window.clarity === 'function') window.clarity('event', name);
   }
+  window.trackEvent = trackEvent;
 
   // the conversions that actually matter on this page
   document.querySelectorAll('a[href^="https://wa.me"]').forEach(a =>
@@ -1111,6 +1112,10 @@ document.addEventListener('DOMContentLoaded', () => {
     a.addEventListener('click', () => trackEvent('email_click')));
   document.querySelectorAll('a[href*="linkedin.com"]').forEach(a =>
     a.addEventListener('click', () => trackEvent('linkedin_click')));
+  const cvLink = document.getElementById('cvBtn');
+  if (cvLink) cvLink.addEventListener('click', () => trackEvent('cv_download'));
+  // runs after the toggle's own handler, so lang is already the new one
+  langToggle.addEventListener('click', () => trackEvent('language_switch', { language: lang }));
 
   // ---------- floating CTA ----------
   // Shows once the hero is out of view, says something that fits the section
