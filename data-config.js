@@ -603,6 +603,10 @@ const SITE_DATA = {
   // Remove calLink to hide the calendar.
   booking: { calLink: "mahmoud-gad/intro-call" },
 
+  // Voice note: plays the first time a case is opened (only on the site in
+  // this language; elsewhere it waits for a tap). Remove to turn it off.
+  voice: { file: "assets/audio/mahmoud-voice.m4a", language: "ar" },
+
   howIWork: [
     { title: "Audit", desc: "I review the account, funnel, tracking, creative and unit economics before recommending where to spend." },
     { title: "Strategy", desc: "I build campaign structure, KPIs, budget allocation and a testing plan around business goals and margins." },

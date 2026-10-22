@@ -991,6 +991,8 @@ document.addEventListener('DOMContentLoaded', () => {
       .map(p => ({ ...p, src: withV(p.src) }));
     proofTitle = t(item.title);
     trackEvent('case_open', { client: item.title });
+    // voice.js starts the voice note from this same click (Safari needs the gesture)
+    document.dispatchEvent(new CustomEvent('case:open'));
     if (proofList.length > 1) showGrid(); else showViewer(0);
     lightbox.classList.add('open');
     document.body.style.overflow = 'hidden';
