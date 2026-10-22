@@ -2557,8 +2557,8 @@ html[lang="ar"] .story-proof-title{ letter-spacing: 0; }
 }
 .voice-chip-state::before{
   /* a play triangle points right in both languages */
-  content: ""; width: 0; height: 0; margin-left: 3px;
-  border-top: 7px solid transparent; border-bottom: 7px solid transparent; border-left: 11px solid #fff;
+  content: ""; width: 11px; height: 14px; margin-left: 3px;
+  background: #fff; clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 .voice-chip-state i{ display: none; width: 3px; height: 14px; border-radius: 2px; background: #fff; transform-origin: 50% 100%; }
 .voice-chip.is-playing .voice-chip-state::before{ display: none; }
