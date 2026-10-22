@@ -3,10 +3,11 @@
 //
 // It starts the first time a visitor opens a case (Arabic site only; the
 // recording is Arabic, so the English site shows it paused with a play
-// button). It plays once per visit and keeps going if the case is closed: a
-// small chip with his photo stays in the corner to pause it. A visitor who
-// pauses it is not played to again in that visit. The file is fetched only
-// when it first plays. File and language live in data-config.js (voice).
+// button). It keeps going if the case is closed: a small chip with his photo
+// stays in the corner to pause it. It starts on its own once per visit; after
+// that, opening a case (even after a reload) brings the chip back paused, and
+// play picks up where it stopped. The file is fetched only when it first
+// plays. File and language live in data-config.js (voice).
 // =========================================================
 (() => {
   const cfg = (typeof SITE_DATA !== 'undefined' && SITE_DATA.voice) || {};
@@ -61,8 +62,14 @@
   const show = () => { chip.classList.add('is-shown'); paint(); };
   const hide = () => chip.classList.remove('is-shown');
 
+  // where it stopped, kept for the visit so a reload can pick it up again
+  const saveAt = () => { if (audio.currentTime) store.set('mg_voice_at', String(audio.ended ? 0 : audio.currentTime)); };
+
   function play(auto) {
-    if (!audio.src) audio.src = cfg.file;
+    if (!audio.src) {
+      const at = parseFloat(store.get('mg_voice_at')) || 0;
+      audio.src = at > 1 ? `${cfg.file}#t=${at.toFixed(1)}` : cfg.file;
+    }
     // called straight from the visitor's click, so Safari lets it start
     const p = audio.play();
     if (p && p.catch) p.catch(() => paint());
@@ -72,11 +79,13 @@
   }
 
   audio.addEventListener('play', paint);
-  audio.addEventListener('pause', paint);
+  audio.addEventListener('pause', () => { saveAt(); paint(); });
+  // a reload mid-sentence fires no pause, so save on the way out too
+  window.addEventListener('pagehide', saveAt);
   audio.addEventListener('timeupdate', paint);
   audio.addEventListener('ended', () => {
     track('voice_complete');
-    store.set('mg_voice_done', '1');
+    store.set('mg_voice_at', '0');
     paint();
     setTimeout(() => { if (audio.paused) hide(); }, 2500);
   });
@@ -87,22 +96,21 @@
       play(false);
     } else {
       audio.pause();
-      store.set('mg_voice_off', '1');
       track('voice_pause', { at: Math.round(audio.currentTime) });
     }
   });
   closeBtn.addEventListener('click', () => {
     if (!audio.paused) track('voice_pause', { at: Math.round(audio.currentTime) });
     audio.pause();
-    store.set('mg_voice_off', '1');
     hide();
   });
 
   // script.js fires this from the click that opens a case
   document.addEventListener('case:open', () => {
-    if (store.get('mg_voice_started') || store.get('mg_voice_off')) return;
-    if (cfg.language && lang() !== cfg.language) {
-      // a language the visitor may not speak: offer it, don't start it
+    if (!audio.paused) return;
+    // already heard or stopped this visit, or a language the visitor may not
+    // speak: offer it, don't start it
+    if (store.get('mg_voice_started') || (cfg.language && lang() !== cfg.language)) {
       store.set('mg_voice_started', '1');
       show();
       return;
