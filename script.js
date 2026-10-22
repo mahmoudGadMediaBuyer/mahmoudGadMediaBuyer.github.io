@@ -1093,13 +1093,14 @@ document.addEventListener('DOMContentLoaded', () => {
   setLang(lang);
 
   // ---------- analytics helper ----------
-  // GA4 gets the event with its details; Clarity gets the name, so its
+  // GA4 and PostHog get the event with its details; Clarity gets the name, so its
   // recordings can be filtered to "visitors who booked" and the like. Neither
   // exists on your own devices or local previews (see the head of index.html).
   function trackEvent(name, params) {
     params = params || {};
     if (typeof window.gtag === 'function') window.gtag('event', name, params);
     if (typeof window.clarity === 'function') window.clarity('event', name);
+    if (window.posthog && typeof window.posthog.capture === 'function') window.posthog.capture(name, params);
   }
   window.trackEvent = trackEvent;
 

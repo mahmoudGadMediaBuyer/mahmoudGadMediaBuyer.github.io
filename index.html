@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=143">
+<link rel="stylesheet" href="style.css?v=144">
 <script>
   // Scroll motion is opt-out: only visitors who haven't asked for reduced motion
   // get the hidden-until-revealed states, and if motion.js never loads the
@@ -45,8 +45,9 @@
 <link rel="canonical" href="https://mahmoudgadmediabuyer.github.io/">
 
 <!-- ============ ANALYTICS ============
-     Google Analytics 4 (who came and from where) and Microsoft Clarity (what
-     they did on the page). script.js / book.js send the conversions through
+     Google Analytics 4 (who came and from where), Microsoft Clarity (what
+     they did on the page: recordings, heatmaps) and PostHog (funnels and each
+     visitor's path; its own recordings stay off, Clarity has them). script.js / book.js send the conversions through
      trackEvent: book_call, whatsapp_click, email_click, cv_download, case_open.
 
      Your own visits: open the site once on each of your devices with
@@ -56,6 +57,7 @@
   (function () {
     var GA4_ID = 'G-Z638N4K5C4';
     var CLARITY_ID = 'z1kwybmvf0';
+    var POSTHOG_KEY = 'phc_xqUFyJVJ45dDQucsXK43KBFXLPr7C6DvC2iHJ3tymMHx';
 
     var flag = new URLSearchParams(location.search).get('internal');
     try {
@@ -79,6 +81,15 @@
       t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i;
       y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
     })(window, document, 'clarity', 'script', CLARITY_ID);
+
+    // PostHog's own loader stub, unchanged
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog&&window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init(POSTHOG_KEY, {
+      api_host: 'https://eu.i.posthog.com',
+      person_profiles: 'identified_only',
+      capture_pageview: true,            // one page_view per load; the #section links are not new pages
+      disable_session_recording: true,   // Clarity records the sessions
+    });
   })();
 </script>
 </head>
@@ -448,13 +459,13 @@
   </div>
 </div>
 
-<script src="i18n.js?v=143"></script>
-<script src="data-config.js?v=143"></script>
-<script src="script.js?v=143"></script>
-<script src="motion.js?v=143"></script>
-<script src="swipe.js?v=143"></script>
-<script src="globe.js?v=143"></script>
-<script src="net.js?v=143"></script>
-<script src="book.js?v=143"></script>
+<script src="i18n.js?v=144"></script>
+<script src="data-config.js?v=144"></script>
+<script src="script.js?v=144"></script>
+<script src="motion.js?v=144"></script>
+<script src="swipe.js?v=144"></script>
+<script src="globe.js?v=144"></script>
+<script src="net.js?v=144"></script>
+<script src="book.js?v=144"></script>
 </body>
 </html>
